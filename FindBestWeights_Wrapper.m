@@ -42,6 +42,7 @@ function FindBestWeights_Wrapper(dataDir,nCoils,oddevenall,lastSampleForWeightCa
 % Updated 6/1/17 by DJ - debugging
 % Updated 6/8/17 by DJ - fixed naming conventions, comments
 % Updated 6/9/17 by DJ - added mSTARC_command.txt file output
+% Updated 12/4/17 by RENZO - added added normalization of output
 
 % Running on Felix: Add these lines to /home/$USER/.matlab/R2016b/mccpath before compiling
 % -I /data/SFIM/RENZO/PATH/to_compile
@@ -242,7 +243,9 @@ reconNew = squeeze(sum(repmat(weights,1,1,1,1,size(allData,5)).*allData,4));
 % reconNew = squeeze(sum(repmat(1/nCoils,size(allData)).*allData,4)); % control version with straight averaging
 
 % Save with NIFTI toolbox
-reconOutFilename = sprintf('%s/%s/mSTARC_CombinedData.nii',dataPath,dataName);
+% Note that this out put is not mean corrected. I.e. the signal intensitiry
+% across voxels is not comparable. 
+reconOutFilename = sprintf('%s/%s/mSTARC_CombinedData_mean_uncorrected.nii',dataPath,dataName);
 fprintf('===Writing reweighted data as %s...\n',reconOutFilename);
 tic
 Ima = make_nii(reconNew);
