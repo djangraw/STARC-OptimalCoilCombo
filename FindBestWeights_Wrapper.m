@@ -253,8 +253,31 @@ save_nii(Ima, reconOutFilename);
 tWrite = toc;
 fprintf('===Done! Took %.1f seconds.\n',tWrite);
 
+
 %% Write readme file
 readmeOutFilename = sprintf('%s/%s/mSTARC_command.txt',dataPath,dataName);
 fid = fopen(readmeOutFilename,'w');
 fprintf(fid,'%s(''%s'',%d,''%s'',%d,[%s],%d)',mfilename,dataDir,nCoils,oddevenall,lastSampleForWeightCalc,num2str(smoothingSigma),usepar);
 fclose(fid);
+
+
+
+%% Write mean corrected data
+% Reconstruct images
+
+reconNew_SOS = squeeze(sum(repmat(1/nCoils,size(allData)).*allData,4)); % control version with straight averaging
+reconNew_mean_corr = squeeze(sum(repmat(reconNew./reconNew_SOS,1,1,1,1,size(allData,5)).*allData,4));
+
+% Save with NIFTI toolbox
+% Note that this out put is not mean corrected. I.e. the signal intensitiry
+% across voxels is not comparable. 
+reconOutFilename_mc = sprintf('%s/%s/mSTARC_CombinedData_mean_uncorrected.nii',dataPath,dataName);
+fprintf('===Writing mean corrected reweighted data as %s...\n',reconOutFilename_mc);
+tic
+Ima = make_nii(reconNew_mean_corr);
+save_nii(Ima, reconOutFilename_mc);
+tWrite = toc;
+fprintf('===Done! Took %.1f seconds.\n',tWrite);
+
+
+
